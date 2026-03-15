@@ -61,3 +61,20 @@ export interface AppNotification {
   timestamp: string;
   read: boolean;
 }
+
+export interface CartItem {
+  id: string;
+  vehicleId: string;
+  fuelType: FuelType;
+  orderType: 'amount' | 'quantity';
+  value: number;
+  quantityLiters: number;
+  amountRupees: number;
+}
+
+export interface SavedAddress {
+  id: string;
+  label: string;
+  emoji: string;
+  location: Location;
+}

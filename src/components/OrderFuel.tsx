@@ -1,15 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Car, Fuel as FuelIcon, ArrowRight, Clock, Zap } from 'lucide-react';
+import { ArrowLeft, Car, Fuel as FuelIcon, ArrowRight, Clock, TrendingDown, TrendingUp, ShoppingCart, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { FuelType } from '../types';
 import MapPicker from './MapPicker';
 import SchedulePicker from './SchedulePicker';
 import { useDynamicPricing } from '../hooks/useDynamicPricing';
+import { SkeletonPricing } from './SkeletonLoader';
+import FuelCart from './FuelCart';
+
+// Simulated 7-day price history
+const PRICE_HISTORY: Record<FuelType, number[]> = {
+  Petrol: [102.10, 101.95, 101.80, 101.90, 101.70, 101.60, 101.50],
+  Diesel: [89.80, 89.65, 89.50, 89.40, 89.35, 89.25, 89.20],
+};
+
+const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
+
+function SparklineChart({ data, color = '#E56B25' }: { data: number[]; color?: string }) {
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const width = 140;
+  const height = 36;
+  const padding = 4;
+
+  const points = data.map((value, i) => {
+    const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+    const y = height - padding - ((value - min) / range) * (height - padding * 2);
+    return `${x},${y}`;
+  });
+
+  const linePath = `M ${points.join(' L ')}`;
+  const areaPath = `${linePath} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`;
+
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+          <stop offset="100%" stopColor={color} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill="url(#sparkGrad)" />
+      <path d={linePath} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      {/* End dot */}
+      <circle cx={parseFloat(points[points.length - 1].split(',')[0])} cy={parseFloat(points[points.length - 1].split(',')[1])} r={3} fill={color} />
+    </svg>
+  );
+}
 
 export default function OrderFuel() {
-  const { vehicles, setCurrentOrder, location, setLocation, addNotification } = useAppContext();
+  const { vehicles, setCurrentOrder, location, setLocation, addNotification, cart, setCart } = useAppContext();
   const navigate = useNavigate();
   const [selectedVehicle, setSelectedVehicle] = useState<string>('');
   const [fuelType, setFuelType] = useState<FuelType>('Petrol');
@@ -17,6 +60,7 @@ export default function OrderFuel() {
   const [value, setValue] = useState<string>('');
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
+  const [pricingLoading, setPricingLoading] = useState(false);
 
   const FUEL_PRICE = {
     Petrol: 101.5,
@@ -26,6 +70,22 @@ export default function OrderFuel() {
   const numValue = Number(value) || 0;
   const quantityLiters = orderType === 'quantity' ? numValue : numValue / FUEL_PRICE[fuelType];
   const pricing = useDynamicPricing(location, quantityLiters, fuelType);
+
+  // Skeleton loading for pricing (Feature 7)
+  useEffect(() => {
+    if (value && Number(value) > 0) {
+      setPricingLoading(true);
+      const timer = setTimeout(() => setPricingLoading(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [value, fuelType, orderType]);
+
+  // Price trend calculation
+  const history = PRICE_HISTORY[fuelType];
+  const yesterdayPrice = history[history.length - 2];
+  const todayPrice = history[history.length - 1];
+  const priceDiff = todayPrice - yesterdayPrice;
+  const isFalling = priceDiff < 0;
 
   const handleContinue = () => {
     if (!selectedVehicle) {
@@ -57,6 +117,33 @@ export default function OrderFuel() {
       scheduledDate: isScheduled ? scheduledDate : undefined,
     });
     navigate('/checkout');
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedVehicle) {
+      addNotification('Missing Information', 'Please select a vehicle', 'warning');
+      return;
+    }
+    if (!value || Number(value) <= 0) {
+      addNotification('Missing Information', 'Please enter a valid amount or quantity', 'warning');
+      return;
+    }
+
+    const amountRupees = orderType === 'amount' ? numValue : numValue * FUEL_PRICE[fuelType];
+
+    setCart(prev => [...prev, {
+      id: `cart-${Date.now()}`,
+      vehicleId: selectedVehicle,
+      fuelType,
+      orderType,
+      value: numValue,
+      quantityLiters,
+      amountRupees,
+    }]);
+
+    addNotification('Added to Cart', 'Fuel added! Select another vehicle or checkout.', 'success');
+    setSelectedVehicle('');
+    setValue('');
   };
 
   return (
@@ -134,6 +221,36 @@ export default function OrderFuel() {
             </button>
           </div>
 
+          {/* Price Trend Indicator (Feature 1) */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-bg border-2 border-border rounded-sm transition-colors"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="text-xs text-muted font-body uppercase tracking-wider">Today's Price</p>
+                <p className="font-heading font-bold text-2xl text-text">₹{FUEL_PRICE[fuelType]}<span className="text-sm text-muted">/L</span></p>
+              </div>
+              <SparklineChart data={PRICE_HISTORY[fuelType]} color={isFalling ? '#2B825B' : '#E56B25'} />
+            </div>
+            <div className="flex items-center space-x-2">
+              {isFalling ? (
+                <TrendingDown size={14} className="text-accent" />
+              ) : (
+                <TrendingUp size={14} className="text-primary" />
+              )}
+              <span className={`text-xs font-heading font-bold ${isFalling ? 'text-accent' : 'text-primary'}`}>
+                {isFalling ? '↓' : '↑'} ₹{Math.abs(priceDiff).toFixed(2)} since yesterday
+              </span>
+            </div>
+            {isFalling && (
+              <p className="text-[10px] text-accent font-body mt-2 bg-accent/10 px-2 py-1 rounded-sm inline-block border border-accent/20">
+                Prices are falling — good time to top up!
+              </p>
+            )}
+          </motion.div>
+
           <div className="flex p-1 bg-bg border-2 border-border rounded-sm mb-6 transition-colors">
             <button
               onClick={() => { setOrderType('amount'); setValue(''); }}
@@ -186,43 +303,53 @@ export default function OrderFuel() {
           </div>
 
           {value && Number(value) > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-4 bg-bg border-2 border-border rounded-sm transition-colors"
-            >
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted font-body">Current Price</span>
-                <span className="font-heading font-bold text-text">₹{FUEL_PRICE[fuelType]}/L</span>
-              </div>
-              <div className="h-px bg-border my-3" />
-              <div className="flex justify-between items-center">
-                <span className="text-muted font-body">
-                  {orderType === 'amount' ? 'Estimated Quantity' : 'Estimated Amount'}
-                </span>
-                <span className="font-heading font-bold text-primary text-lg">
-                  {orderType === 'amount' 
-                    ? `${(Number(value) / FUEL_PRICE[fuelType]).toFixed(2)} L` 
-                    : `₹${(Number(value) * FUEL_PRICE[fuelType]).toFixed(2)}`}
-                </span>
-              </div>
-              <div className="h-px bg-border my-3" />
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted font-body flex items-center">
-                  <Clock size={14} className="mr-1" /> Est. Delivery
-                </span>
-                <span className="font-heading font-bold text-text">{pricing.estimatedMinutes} min</span>
-              </div>
-              <div className="flex justify-between items-center text-sm mt-2">
-                <span className="text-muted font-body">Delivery Fee</span>
-                <span className="font-heading font-bold text-text">
-                  ₹{pricing.deliveryFee}
-                  {pricing.surgeActive && (
-                    <span className="text-[10px] ml-1 text-primary font-bold">PEAK</span>
-                  )}
-                </span>
-              </div>
-            </motion.div>
+            pricingLoading ? (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4"
+              >
+                <SkeletonPricing />
+              </motion.div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-4 bg-bg border-2 border-border rounded-sm transition-colors"
+              >
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted font-body">Current Price</span>
+                  <span className="font-heading font-bold text-text">₹{FUEL_PRICE[fuelType]}/L</span>
+                </div>
+                <div className="h-px bg-border my-3" />
+                <div className="flex justify-between items-center">
+                  <span className="text-muted font-body">
+                    {orderType === 'amount' ? 'Estimated Quantity' : 'Estimated Amount'}
+                  </span>
+                  <span className="font-heading font-bold text-primary text-lg">
+                    {orderType === 'amount' 
+                      ? `${(Number(value) / FUEL_PRICE[fuelType]).toFixed(2)} L` 
+                      : `₹${(Number(value) * FUEL_PRICE[fuelType]).toFixed(2)}`}
+                  </span>
+                </div>
+                <div className="h-px bg-border my-3" />
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-muted font-body flex items-center">
+                    <Clock size={14} className="mr-1" /> Est. Delivery
+                  </span>
+                  <span className="font-heading font-bold text-text">{pricing.estimatedMinutes} min</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-2">
+                  <span className="text-muted font-body">Delivery Fee</span>
+                  <span className="font-heading font-bold text-text">
+                    ₹{pricing.deliveryFee}
+                    {pricing.surgeActive && (
+                      <span className="text-[10px] ml-1 text-primary font-bold">PEAK</span>
+                    )}
+                  </span>
+                </div>
+              </motion.div>
+            )
           )}
         </section>
 
@@ -236,7 +363,16 @@ export default function OrderFuel() {
           }}
         />
 
-        <div className="pb-8">
+        {/* Action Buttons (Feature 3 - Add to Cart + Continue) */}
+        <div className="pb-8 space-y-3">
+          {vehicles.length > 1 && (
+            <button
+              onClick={handleAddToCart}
+              className="btn-secondary w-full py-4 text-base flex items-center justify-center"
+            >
+              <Plus size={18} className="mr-2" /> Add to Cart & Select Another Vehicle
+            </button>
+          )}
           <button
             onClick={handleContinue}
             className="btn-primary w-full py-4 text-lg flex items-center justify-center"
@@ -245,6 +381,9 @@ export default function OrderFuel() {
           </button>
         </div>
       </main>
+
+      {/* Floating Cart (Feature 3) */}
+      <FuelCart />
     </div>
   );
 }

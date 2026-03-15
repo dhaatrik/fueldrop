@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Car, X, ArrowRight } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface VehicleSelectModalProps {
   isOpen: boolean;
@@ -13,6 +14,17 @@ interface VehicleSelectModalProps {
 export default function VehicleSelectModal({ isOpen, onClose, onSelect, title = 'Select a Vehicle' }: VehicleSelectModalProps) {
   const { vehicles } = useAppContext();
 
+  // Focus trap (Feature 8)
+  const modalRef = useFocusTrap(isOpen);
+
+  // Close on Escape via custom event from focus trap
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = () => onClose();
+    document.addEventListener('modal-escape' as any, handleEscape);
+    return () => document.removeEventListener('modal-escape' as any, handleEscape);
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -21,15 +33,21 @@ export default function VehicleSelectModal({ isOpen, onClose, onSelect, title = 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          onClick={onClose}
         >
           <motion.div
+            ref={modalRef}
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             className="card-brutal p-6 w-full max-w-sm transition-colors"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vehicle-select-title"
           >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-heading font-bold text-text uppercase tracking-wider">{title}</h3>
+              <h3 id="vehicle-select-title" className="text-lg font-heading font-bold text-text uppercase tracking-wider">{title}</h3>
               <button onClick={onClose} className="text-muted hover:text-text transition-colors">
                 <X size={20} />
               </button>

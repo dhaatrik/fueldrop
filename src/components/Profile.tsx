@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, User as UserIcon, Mail, Phone, LogOut, Edit2, Check, Heart, ChevronRight, Camera } from 'lucide-react';
+import { ArrowLeft, User as UserIcon, Mail, Phone, LogOut, Edit2, Check, Heart, ChevronRight, Camera, Gift, Copy, Share2, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
@@ -10,6 +10,9 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+
+  // Generate mock referral code
+  const referralCode = `FUEL${(user?.name || 'USER').slice(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`;
 
   const handleSave = () => {
     if (user) {
@@ -22,6 +25,19 @@ export default function Profile() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(referralCode).then(() => {
+      addNotification('Copied!', 'Referral code copied to clipboard.', 'success');
+    }).catch(() => {
+      addNotification('Referral Code', `Your code is: ${referralCode}`, 'info');
+    });
+  };
+
+  const handleShareWhatsApp = () => {
+    const text = `Hey! Use my referral code ${referralCode} on FuelDrop and get ₹50 off your first fuel delivery! 🚗⛽`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
@@ -106,6 +122,62 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Share & Earn - Referral Engine (Feature 2) */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card-brutal overflow-hidden transition-colors border-primary"
+        >
+          <div className="bg-primary/10 p-5 border-b-2 border-border">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-primary border-2 border-border rounded-sm flex items-center justify-center text-bg shadow-brutal-sm">
+                <Gift size={20} />
+              </div>
+              <div>
+                <h3 className="font-heading font-bold text-text uppercase tracking-wider text-sm">Share & Earn</h3>
+                <p className="text-xs text-primary font-heading font-bold">Give ₹50, Get ₹50</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted font-body">
+              Invite friends to FuelDrop. They get ₹50 off their first order, and you earn ₹50 credit!
+            </p>
+          </div>
+
+          <div className="p-5 space-y-4">
+            {/* Referral Code */}
+            <div className="flex items-center justify-between bg-bg border-2 border-border rounded-sm p-3">
+              <div>
+                <p className="text-[10px] text-muted font-body uppercase tracking-wider">Your Referral Code</p>
+                <p className="font-heading font-bold text-text text-lg tracking-[0.2em]">{referralCode}</p>
+              </div>
+              <button
+                onClick={handleCopyCode}
+                className="w-10 h-10 bg-surface border-2 border-border rounded-sm flex items-center justify-center text-primary shadow-brutal-sm hover:bg-bg transition-colors"
+              >
+                <Copy size={18} />
+              </button>
+            </div>
+
+            {/* Share Button */}
+            <button
+              onClick={handleShareWhatsApp}
+              className="w-full py-3 bg-accent text-bg border-2 border-border rounded-sm font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all"
+              style={{ boxShadow: '4px 4px 0px var(--accent)' }}
+            >
+              <Share2 size={16} className="mr-2" /> Share via WhatsApp
+            </button>
+
+            {/* Mock Referral Stats */}
+            <div className="flex items-center justify-between bg-bg border-2 border-border rounded-sm p-3">
+              <div className="flex items-center space-x-2">
+                <Users size={16} className="text-accent" />
+                <span className="text-sm text-muted font-body">2 friends joined</span>
+              </div>
+              <span className="font-heading font-bold text-accent text-sm">₹100 earned</span>
+            </div>
+          </div>
+        </motion.div>
 
         <div className="card-brutal overflow-hidden transition-colors">
           <button 

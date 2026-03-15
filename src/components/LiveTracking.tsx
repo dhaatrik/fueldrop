@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { Phone, MessageSquare, CheckCircle2, Clock, Truck } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Phone, MessageSquare, CheckCircle2, Clock, Truck, AlertTriangle, X, Headphones, MapPin, Ban, PhoneCall } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { OrderStatus } from '../types';
 
 const statuses: OrderStatus[] = ['Pending', 'Accepted', 'Out for Delivery', 'Arriving', 'Delivered'];
 
+const SUPPORT_OPTIONS = [
+  { id: 'find', icon: <MapPin size={18} />, label: "Captain can't find my vehicle", desc: 'We\'ll share your exact location' },
+  { id: 'delay', icon: <Clock size={18} />, label: 'Delivery is taking too long', desc: 'We\'ll check with the captain' },
+  { id: 'cancel', icon: <Ban size={18} />, label: 'Cancel this order', desc: 'Cancellation charges may apply' },
+  { id: 'call', icon: <PhoneCall size={18} />, label: 'Call Support: 1800-XXX-XXXX', desc: 'Available 24/7' },
+];
+
 export default function LiveTracking() {
   const { addNotification } = useAppContext();
   const navigate = useNavigate();
   const [statusIndex, setStatusIndex] = useState(0);
   const [eta, setEta] = useState(12 * 60);
+  const [showSOS, setShowSOS] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -53,6 +61,24 @@ export default function LiveTracking() {
   }, [statusIndex, navigate]);
 
   const currentStatus = statuses[statusIndex];
+
+  const handleSupportOption = (id: string) => {
+    setShowSOS(false);
+    switch (id) {
+      case 'find':
+        addNotification('Location Shared', 'Your precise GPS location has been shared with the captain.', 'success');
+        break;
+      case 'delay':
+        addNotification('Support Notified', 'We\'re checking with your captain. Please wait.', 'info');
+        break;
+      case 'cancel':
+        addNotification('Cancellation Request', 'Your cancellation request has been submitted.', 'warning');
+        break;
+      case 'call':
+        addNotification('Calling Support', 'Connecting you to our support team...', 'info');
+        break;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
@@ -187,6 +213,78 @@ export default function LiveTracking() {
           </div>
         </div>
       </div>
+
+      {/* SOS / Support FAB (Feature 5) */}
+      {currentStatus !== 'Delivered' && (
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          onClick={() => setShowSOS(true)}
+          className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-red-500 border-2 border-border rounded-sm shadow-brutal flex items-center justify-center text-white hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all"
+        >
+          <AlertTriangle size={22} className="animate-pulse" />
+        </motion.button>
+      )}
+
+      {/* Support Action Sheet (Feature 5) */}
+      <AnimatePresence>
+        {showSOS && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-bg/80 backdrop-blur-sm z-50 flex items-end justify-center"
+            onClick={() => setShowSOS(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-surface border-t-2 border-x-2 border-border rounded-t-sm p-6"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-red-500/20 border-2 border-red-500 rounded-sm flex items-center justify-center">
+                    <Headphones size={20} className="text-red-500" />
+                  </div>
+                  <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider">Need Help?</h3>
+                </div>
+                <button onClick={() => setShowSOS(false)} className="text-muted hover:text-text transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <p className="text-sm text-muted font-body mb-4">
+                Select an issue below and we'll help you right away.
+              </p>
+
+              <div className="space-y-2">
+                {SUPPORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSupportOption(option.id)}
+                    className="w-full flex items-center space-x-4 p-4 bg-bg border-2 border-border rounded-sm hover:border-primary transition-colors text-left group"
+                  >
+                    <div className="w-10 h-10 bg-surface border-2 border-border rounded-sm flex items-center justify-center text-primary shrink-0 shadow-brutal-sm group-hover:bg-primary group-hover:text-bg transition-colors">
+                      {option.icon}
+                    </div>
+                    <div>
+                      <p className="font-heading font-bold text-text text-sm uppercase tracking-wider">{option.label}</p>
+                      <p className="text-xs text-muted font-body mt-0.5">{option.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <button onClick={() => setShowSOS(false)} className="btn-secondary w-full mt-4 py-3">
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

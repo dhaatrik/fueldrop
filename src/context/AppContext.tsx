@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, Vehicle, Order, Location, FavoriteOrder, AppNotification } from '../types';
+import { User, Vehicle, Order, Location, FavoriteOrder, AppNotification, CartItem, SavedAddress } from '../types';
 import { usePersistedState, clearPersistedState } from '../hooks/usePersistedState';
 
-const PERSISTED_KEYS = ['fd_user', 'fd_vehicles', 'fd_orders', 'fd_favorites', 'fd_darkMode', 'fd_onboarding'];
+const PERSISTED_KEYS = ['fd_user', 'fd_vehicles', 'fd_orders', 'fd_favorites', 'fd_darkMode', 'fd_onboarding', 'fd_savedAddresses'];
 
 interface AppContextType {
   user: User | null;
@@ -24,6 +24,10 @@ interface AppContextType {
   setDarkMode: (dark: boolean) => void;
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (v: boolean) => void;
+  cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  savedAddresses: SavedAddress[];
+  setSavedAddresses: (addresses: SavedAddress[]) => void;
   logout: () => void;
 }
 
@@ -39,6 +43,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [darkMode, setDarkMode] = usePersistedState<boolean>('fd_darkMode', true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = usePersistedState<boolean>('fd_onboarding', false);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [savedAddresses, setSavedAddresses] = usePersistedState<SavedAddress[]>('fd_savedAddresses', []);
 
   useEffect(() => {
     if (darkMode) {
@@ -73,6 +79,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentOrder(null);
     setLocation(null);
     setNotifications([]);
+    setCart([]);
+    setSavedAddresses([]);
   };
 
   return (
@@ -97,6 +105,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setDarkMode,
         hasCompletedOnboarding,
         setHasCompletedOnboarding,
+        cart,
+        setCart,
+        savedAddresses,
+        setSavedAddresses,
         logout,
       }}
     >
@@ -112,3 +124,4 @@ export const useAppContext = () => {
   }
   return context;
 };
+

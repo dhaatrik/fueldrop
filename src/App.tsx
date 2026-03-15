@@ -17,6 +17,8 @@ import About from './components/About';
 import Favorites from './components/Favorites';
 import Onboarding from './components/Onboarding';
 import ProtectedRoute from './components/ProtectedRoute';
+import OfflineBanner from './components/OfflineBanner';
+import CaptainDashboard from './components/captain/CaptainDashboard';
 
 function AppRoutes() {
   const { user } = useAppContext();
@@ -38,6 +40,8 @@ function AppRoutes() {
       <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
       <Route path="/privacy" element={<Legal type="privacy" />} />
       <Route path="/terms" element={<Legal type="terms" />} />
+      {/* Captain App (Feature 10) - publicly accessible */}
+      <Route path="/captain" element={<CaptainDashboard />} />
       <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
     </Routes>
   );
@@ -46,6 +50,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <>
+      <OfflineBanner />
       <NotificationToast />
       <AppRoutes />
     </>

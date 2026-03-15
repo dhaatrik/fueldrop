@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, CreditCard, Wallet, Tag, MapPin, Fuel, ArrowRight, Heart, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,9 +6,10 @@ import { useAppContext } from '../context/AppContext';
 import { Order } from '../types';
 import SafetyChecklist from './SafetyChecklist';
 import { useDynamicPricing } from '../hooks/useDynamicPricing';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 export default function Checkout() {
-  const { currentOrder, setOrders, orders, addNotification, favoriteOrders, setFavoriteOrders } = useAppContext();
+  const { currentOrder, setOrders, orders, addNotification, favoriteOrders, setFavoriteOrders, cart, setCart, vehicles } = useAppContext();
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const [promoCode, setPromoCode] = useState('');
@@ -17,6 +18,16 @@ export default function Checkout() {
   const [saveAsFavorite, setSaveAsFavorite] = useState(false);
   const [favoriteName, setFavoriteName] = useState('');
   const [safetyChecked, setSafetyChecked] = useState(false);
+
+  // Focus trap for confirmation modal (Feature 8)
+  const confirmModalRef = useFocusTrap(showConfirmModal);
+
+  // Close on Escape
+  useEffect(() => {
+    const handleEscape = () => setShowConfirmModal(false);
+    document.addEventListener('modal-escape' as any, handleEscape);
+    return () => document.removeEventListener('modal-escape' as any, handleEscape);
+  }, []);
 
   if (!currentOrder) {
     navigate('/order');
@@ -29,7 +40,19 @@ export default function Checkout() {
     currentOrder.fuelType || 'Petrol'
   );
 
-  const subtotal = currentOrder.amountRupees || 0;
+  // Calculate totals including any cart items
+  const hasCartItems = cart.length > 0;
+  const allItems = hasCartItems ? cart : [{
+    id: 'single',
+    vehicleId: currentOrder.vehicleId || '',
+    fuelType: currentOrder.fuelType || 'Petrol' as const,
+    orderType: 'amount' as const,
+    value: currentOrder.amountRupees || 0,
+    quantityLiters: currentOrder.quantityLiters || 0,
+    amountRupees: currentOrder.amountRupees || 0,
+  }];
+
+  const subtotal = allItems.reduce((sum, item) => sum + item.amountRupees, 0);
   const gst = subtotal * 0.18;
   const total = subtotal + pricing.deliveryFee + gst - discount;
 
@@ -76,6 +99,8 @@ export default function Checkout() {
       addNotification('Favorite Saved', `"${favoriteName}" has been saved to your favorites.`, 'success');
     }
 
+    // Clear the cart after checkout
+    setCart([]);
     setShowConfirmModal(false);
     navigate('/tracking');
   };
@@ -87,6 +112,11 @@ export default function Checkout() {
           <ArrowLeft size={24} />
         </button>
         <h1 className="font-heading font-bold text-xl text-text uppercase tracking-wider">Checkout</h1>
+        {hasCartItems && (
+          <span className="ml-auto text-xs font-heading font-bold bg-primary text-bg px-2 py-1 rounded-sm border-2 border-border">
+            {cart.length} items
+          </span>
+        )}
       </header>
 
       <main className="flex-1 p-6 max-w-md mx-auto w-full space-y-6">
@@ -94,18 +124,27 @@ export default function Checkout() {
         <section className="card-brutal p-6 transition-colors">
           <h2 className="label-small mb-4">Order Summary</h2>
           
-          <div className="flex items-center justify-between mb-4 pb-4 border-b-2 border-border transition-colors">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-bg border-2 border-border rounded-sm flex items-center justify-center text-primary mr-4 transition-colors shadow-brutal-sm">
-                <Fuel size={24} />
+          {/* Multi-item display (Feature 3) */}
+          {allItems.map((item, idx) => {
+            const vehicle = vehicles.find(v => v.id === item.vehicleId);
+            return (
+              <div key={item.id} className={`flex items-center justify-between ${idx < allItems.length - 1 ? 'mb-3 pb-3 border-b-2 border-border' : 'mb-4 pb-4 border-b-2 border-border'} transition-colors`}>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-bg border-2 border-border rounded-sm flex items-center justify-center text-primary mr-4 transition-colors shadow-brutal-sm">
+                    <Fuel size={24} />
+                  </div>
+                  <div>
+                    <p className="font-heading font-bold text-text uppercase tracking-wider">
+                      {item.fuelType}
+                      {vehicle && <span className="text-xs text-muted font-body normal-case ml-2">({vehicle.make} {vehicle.model})</span>}
+                    </p>
+                    <p className="text-sm text-muted font-body">{item.quantityLiters.toFixed(2)} Liters</p>
+                  </div>
+                </div>
+                <p className="font-heading font-bold text-lg text-text">₹{item.amountRupees.toFixed(2)}</p>
               </div>
-              <div>
-                <p className="font-heading font-bold text-text uppercase tracking-wider">{currentOrder.fuelType}</p>
-                <p className="text-sm text-muted font-body">{currentOrder.quantityLiters?.toFixed(2)} Liters</p>
-              </div>
-            </div>
-            <p className="font-heading font-bold text-lg text-text">₹{subtotal.toFixed(2)}</p>
-          </div>
+            );
+          })}
 
           <div className="flex items-start space-x-3 text-sm text-text font-body">
             <MapPin size={18} className="shrink-0 mt-0.5 text-primary" />
@@ -182,7 +221,7 @@ export default function Checkout() {
           <h2 className="label-small mb-4">Bill Details</h2>
           <div className="space-y-3 text-sm font-body">
             <div className="flex justify-between text-muted">
-              <span>Item Total</span>
+              <span>Item Total {hasCartItems && `(${allItems.length} items)`}</span>
               <span className="font-heading font-bold text-text">₹{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-muted">
@@ -221,7 +260,7 @@ export default function Checkout() {
         </div>
       </main>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal (with focus trap - Feature 8) */}
       <AnimatePresence>
         {showConfirmModal && (
           <motion.div 
@@ -231,17 +270,23 @@ export default function Checkout() {
             className="fixed inset-0 bg-bg/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
           >
             <motion.div 
+              ref={confirmModalRef}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               className="card-brutal p-6 w-full max-w-sm transition-colors"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-dialog-title"
             >
-              <h3 className="text-xl font-heading font-bold text-text uppercase tracking-wider mb-4">Confirm Order</h3>
+              <h3 id="confirm-dialog-title" className="text-xl font-heading font-bold text-text uppercase tracking-wider mb-4">Confirm Order</h3>
               
               <div className="bg-bg border-2 border-border rounded-sm p-4 mb-6 space-y-3 transition-colors">
                 <div className="flex justify-between text-sm font-body">
                   <span className="text-muted">Fuel</span>
-                  <span className="font-heading font-bold text-text uppercase tracking-wider">{currentOrder.fuelType} ({currentOrder.quantityLiters?.toFixed(2)}L)</span>
+                  <span className="font-heading font-bold text-text uppercase tracking-wider">
+                    {hasCartItems ? `${allItems.length} items` : `${currentOrder.fuelType} (${currentOrder.quantityLiters?.toFixed(2)}L)`}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm font-body">
                   <span className="text-muted">Total</span>

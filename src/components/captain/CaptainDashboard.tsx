@@ -1,0 +1,421 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  Truck, MapPin, Fuel, Clock, CheckCircle2, XCircle, DollarSign,
+  Star, ChevronRight, Shield, User, Phone, Navigation, Package
+} from 'lucide-react';
+
+interface MockOrder {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  fuelType: 'Petrol' | 'Diesel';
+  quantityLiters: number;
+  totalAmount: number;
+  address: string;
+  distance: string;
+  vehicleInfo: string;
+}
+
+const MOCK_INCOMING_ORDER: MockOrder = {
+  id: 'ORD-7829',
+  customerName: 'Arjun Mehta',
+  customerPhone: '+91 98765 43210',
+  fuelType: 'Petrol',
+  quantityLiters: 15,
+  totalAmount: 1822.5,
+  address: '14, Indiranagar 3rd Stage, Bangalore - 560038',
+  distance: '3.2 km',
+  vehicleInfo: 'Hyundai i20 (KA 01 AB 1234)',
+};
+
+const SAFETY_ITEMS = [
+  'Wear safety gloves before handling fuel',
+  'Ensure no open flames or cigarettes nearby',
+  'Verify vehicle is turned OFF before fueling',
+  'Use anti-static grounding strap',
+  'Confirm fuel type matches vehicle requirements',
+];
+
+type CaptainStatus = 'offline' | 'available' | 'incoming' | 'accepted' | 'pickup' | 'transit' | 'arrived' | 'fueling' | 'completed';
+
+export default function CaptainDashboard() {
+  const [status, setStatus] = useState<CaptainStatus>('offline');
+  const [checklist, setChecklist] = useState<boolean[]>(new Array(SAFETY_ITEMS.length).fill(false));
+  const [earnings] = useState({ today: 1240, trips: 5, rating: 4.9 });
+  const allChecked = checklist.every(Boolean);
+
+  // Simulate incoming order when available
+  useEffect(() => {
+    if (status === 'available') {
+      const timer = setTimeout(() => setStatus('incoming'), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
+  const handleAccept = () => setStatus('accepted');
+  const handleDecline = () => setStatus('available');
+  const handleStartPickup = () => setStatus('pickup');
+  const handlePickedUp = () => setStatus('transit');
+  const handleArrived = () => setStatus('arrived');
+  const handleStartFueling = () => setStatus('fueling');
+  const handleComplete = () => setStatus('completed');
+  const handleNewOrder = () => { setStatus('available'); setChecklist(new Array(SAFETY_ITEMS.length).fill(false)); };
+
+  const statusColors: Record<string, string> = {
+    offline: 'bg-muted',
+    available: 'bg-accent',
+    incoming: 'bg-primary',
+    accepted: 'bg-primary',
+    pickup: 'bg-primary',
+    transit: 'bg-primary',
+    arrived: 'bg-primary',
+    fueling: 'bg-primary',
+    completed: 'bg-accent',
+  };
+
+  return (
+    <div className="min-h-screen bg-bg flex flex-col transition-colors">
+      {/* Captain Header */}
+      <header className="bg-surface border-b-2 border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors">
+        <div className="flex items-center">
+          <div className="w-10 h-10 bg-accent border-2 border-border rounded-sm flex items-center justify-center text-bg font-heading font-bold text-lg shadow-brutal-sm">
+            <Truck size={20} />
+          </div>
+          <div className="ml-3">
+            <p className="text-xs text-muted font-body uppercase tracking-wider">Captain Mode</p>
+            <p className="font-heading font-bold text-text leading-tight">Rahul Kumar</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className={`w-3 h-3 rounded-full ${statusColors[status]} ${status !== 'offline' ? 'animate-pulse' : ''}`} />
+          <span className="text-xs font-heading font-bold text-text uppercase tracking-wider">
+            {status === 'offline' ? 'OFFLINE' : status === 'available' ? 'ONLINE' : 'ON TRIP'}
+          </span>
+        </div>
+      </header>
+
+      <main className="flex-1 p-6 max-w-md mx-auto w-full space-y-6">
+        {/* Driver Profile Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-accent border-2 border-border rounded-sm p-6 text-bg shadow-brutal relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-bg/20 border-2 border-bg/30 rounded-sm flex items-center justify-center overflow-hidden">
+                <img src="https://i.pravatar.cc/150?img=11" alt="Captain" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h2 className="font-heading font-bold text-xl">Rahul Kumar</h2>
+                <div className="flex items-center space-x-2 mt-1">
+                  <Star size={14} className="fill-current" />
+                  <span className="text-sm font-bold">{earnings.rating}</span>
+                  <span className="text-bg/60 text-sm">• 120+ deliveries</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Earnings Summary */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: "Today's Earnings", value: `₹${earnings.today}`, icon: <DollarSign size={18} /> },
+            { label: 'Trips Today', value: earnings.trips.toString(), icon: <Package size={18} /> },
+            { label: 'Rating', value: earnings.rating.toString(), icon: <Star size={18} /> },
+          ].map((stat) => (
+            <div key={stat.label} className="card-brutal p-4 text-center transition-colors">
+              <div className="w-8 h-8 bg-bg border-2 border-border rounded-sm flex items-center justify-center text-primary mx-auto mb-2 shadow-brutal-sm">
+                {stat.icon}
+              </div>
+              <p className="font-heading font-bold text-text text-lg">{stat.value}</p>
+              <p className="text-[10px] text-muted font-body uppercase tracking-wider mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Status-based Content */}
+        <AnimatePresence mode="wait">
+          {/* Offline -> Go Online */}
+          {status === 'offline' && (
+            <motion.div
+              key="offline"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-8"
+            >
+              <div className="w-20 h-20 bg-surface border-2 border-border rounded-sm flex items-center justify-center mb-4 mx-auto shadow-brutal">
+                <Truck size={36} className="text-muted" />
+              </div>
+              <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider mb-2">You're Offline</h3>
+              <p className="text-muted font-body text-sm mb-6">Go online to start receiving delivery requests.</p>
+              <button
+                onClick={() => setStatus('available')}
+                className="btn-primary px-8 py-4 text-base mx-auto"
+                style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}
+              >
+                Go Online
+              </button>
+            </motion.div>
+          )}
+
+          {/* Available - Waiting */}
+          {status === 'available' && (
+            <motion.div
+              key="available"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center py-8"
+            >
+              <div className="w-20 h-20 bg-accent/20 border-2 border-accent rounded-sm flex items-center justify-center mb-4 mx-auto animate-pulse">
+                <Navigation size={36} className="text-accent" />
+              </div>
+              <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider mb-2">Looking for Orders...</h3>
+              <p className="text-muted font-body text-sm mb-6">Stay online to receive new delivery requests.</p>
+              <button
+                onClick={() => setStatus('offline')}
+                className="btn-secondary px-6 py-3"
+              >
+                Go Offline
+              </button>
+            </motion.div>
+          )}
+
+          {/* Incoming Order */}
+          {status === 'incoming' && (
+            <motion.div
+              key="incoming"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="card-brutal p-6 transition-colors border-primary"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-heading font-bold text-lg text-primary uppercase tracking-wider animate-pulse">
+                  New Order Request!
+                </h3>
+                <span className="text-xs font-heading font-bold bg-primary text-bg px-2 py-1 rounded-sm border-2 border-border">
+                  {MOCK_INCOMING_ORDER.distance}
+                </span>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center space-x-3 text-sm">
+                  <User size={16} className="text-muted shrink-0" />
+                  <span className="text-text font-body">{MOCK_INCOMING_ORDER.customerName}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm">
+                  <Fuel size={16} className="text-muted shrink-0" />
+                  <span className="text-text font-body">
+                    {MOCK_INCOMING_ORDER.fuelType} • {MOCK_INCOMING_ORDER.quantityLiters}L
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm">
+                  <MapPin size={16} className="text-muted shrink-0" />
+                  <span className="text-text font-body line-clamp-2">{MOCK_INCOMING_ORDER.address}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-sm">
+                  <DollarSign size={16} className="text-muted shrink-0" />
+                  <span className="font-heading font-bold text-primary">₹{MOCK_INCOMING_ORDER.totalAmount}</span>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button onClick={handleDecline} className="btn-secondary flex-1 py-3 flex items-center justify-center">
+                  <XCircle size={18} className="mr-2" /> Decline
+                </button>
+                <button onClick={handleAccept} className="btn-primary flex-1 py-3 flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}
+                >
+                  <CheckCircle2 size={18} className="mr-2" /> Accept
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Active Order Flow */}
+          {['accepted', 'pickup', 'transit', 'arrived', 'fueling', 'completed'].includes(status) && (
+            <motion.div
+              key="active"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-4"
+            >
+              {/* Order Details */}
+              <div className="card-brutal p-5 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-text uppercase tracking-wider">Order {MOCK_INCOMING_ORDER.id}</h3>
+                  <span className="text-xs font-heading font-bold bg-primary text-bg px-2 py-1 rounded-sm border-2 border-border uppercase">
+                    {status}
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm font-body">
+                  <div className="flex justify-between">
+                    <span className="text-muted">Customer</span>
+                    <span className="text-text font-heading font-bold">{MOCK_INCOMING_ORDER.customerName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Vehicle</span>
+                    <span className="text-text font-heading font-bold text-xs uppercase">{MOCK_INCOMING_ORDER.vehicleInfo}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Fuel</span>
+                    <span className="text-text font-heading font-bold">{MOCK_INCOMING_ORDER.fuelType} • {MOCK_INCOMING_ORDER.quantityLiters}L</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Earnings</span>
+                    <span className="text-primary font-heading font-bold">₹{(MOCK_INCOMING_ORDER.totalAmount * 0.12).toFixed(0)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Delivery Steps */}
+              <div className="card-brutal p-5 transition-colors">
+                <h4 className="label-small mb-4">Delivery Progress</h4>
+                <div className="relative">
+                  <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-border" />
+                  <div className="space-y-4 relative">
+                    {[
+                      { key: 'accepted', label: 'Order Accepted', desc: 'Head to nearest fuel station' },
+                      { key: 'pickup', label: 'At Fuel Station', desc: 'Fill fuel and verify quantity' },
+                      { key: 'transit', label: 'In Transit', desc: 'Driving to customer location' },
+                      { key: 'arrived', label: 'Arrived', desc: 'At customer location' },
+                      { key: 'fueling', label: 'Fueling Vehicle', desc: 'Complete safety checklist first' },
+                      { key: 'completed', label: 'Completed', desc: 'Delivery successful!' },
+                    ].map((step, idx) => {
+                      const stepOrder = ['accepted', 'pickup', 'transit', 'arrived', 'fueling', 'completed'];
+                      const currentIdx = stepOrder.indexOf(status);
+                      const isCompleted = idx <= currentIdx;
+                      const isCurrent = stepOrder[idx] === status;
+
+                      return (
+                        <div key={step.key} className="flex items-center">
+                          <div className={`w-8 h-8 rounded-sm border-2 flex items-center justify-center z-10 transition-colors ${
+                            isCompleted ? 'bg-accent border-border text-bg shadow-brutal-sm' : 'bg-surface border-border text-muted'
+                          }`}>
+                            {isCompleted ? <CheckCircle2 size={16} /> : <Clock size={16} />}
+                          </div>
+                          <div className="ml-4">
+                            <p className={`font-heading font-bold uppercase tracking-wider text-sm ${
+                              isCurrent ? 'text-accent' : isCompleted ? 'text-text' : 'text-muted'
+                            }`}>{step.label}</p>
+                            {isCurrent && (
+                              <p className="text-xs text-muted font-body mt-0.5">{step.desc}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Safety Checklist (shown when arrived) */}
+              {(status === 'arrived' || status === 'fueling') && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="card-brutal p-5 transition-colors border-accent"
+                >
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Shield size={18} className="text-accent" />
+                    <h4 className="font-heading font-bold text-text uppercase tracking-wider text-sm">Safety Checklist</h4>
+                  </div>
+                  <div className="space-y-3">
+                    {SAFETY_ITEMS.map((item, idx) => (
+                      <label key={idx} className="flex items-start space-x-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={checklist[idx]}
+                          onChange={() => {
+                            const next = [...checklist];
+                            next[idx] = !next[idx];
+                            setChecklist(next);
+                          }}
+                          className="mt-1 w-4 h-4 rounded-sm border-2 border-border accent-accent"
+                        />
+                        <span className={`text-sm font-body transition-colors ${checklist[idx] ? 'text-text line-through' : 'text-muted group-hover:text-text'}`}>
+                          {item}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Contact Customer */}
+              {status !== 'completed' && (
+                <div className="card-brutal p-4 flex items-center justify-between transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-surface border-2 border-border rounded-sm flex items-center justify-center">
+                      <User size={18} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-heading font-bold text-text text-sm uppercase tracking-wider">{MOCK_INCOMING_ORDER.customerName}</p>
+                      <p className="text-xs text-muted font-body">{MOCK_INCOMING_ORDER.customerPhone}</p>
+                    </div>
+                  </div>
+                  <button className="w-10 h-10 bg-accent border-2 border-border rounded-sm flex items-center justify-center text-bg shadow-brutal-sm">
+                    <Phone size={18} />
+                  </button>
+                </div>
+              )}
+
+              {/* Action Button */}
+              <div className="pb-4">
+                {status === 'accepted' && (
+                  <button onClick={handleStartPickup} className="btn-primary w-full py-4 text-base" 
+                    style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}>
+                    Reached Fuel Station <ChevronRight size={18} className="ml-2" />
+                  </button>
+                )}
+                {status === 'pickup' && (
+                  <button onClick={handlePickedUp} className="btn-primary w-full py-4 text-base"
+                    style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}>
+                    Fuel Picked Up — Start Delivery <ChevronRight size={18} className="ml-2" />
+                  </button>
+                )}
+                {status === 'transit' && (
+                  <button onClick={handleArrived} className="btn-primary w-full py-4 text-base"
+                    style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}>
+                    I've Arrived <ChevronRight size={18} className="ml-2" />
+                  </button>
+                )}
+                {status === 'arrived' && (
+                  <button onClick={handleStartFueling} disabled={!allChecked} className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: 'var(--accent)', boxShadow: allChecked ? '4px 4px 0px var(--accent)' : 'none' }}>
+                    {allChecked ? 'Start Fueling' : 'Complete Safety Checklist'} <ChevronRight size={18} className="ml-2" />
+                  </button>
+                )}
+                {status === 'fueling' && (
+                  <button onClick={handleComplete} className="btn-primary w-full py-4 text-base"
+                    style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}>
+                    Mark as Completed <CheckCircle2 size={18} className="ml-2" />
+                  </button>
+                )}
+                {status === 'completed' && (
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 bg-accent border-2 border-border rounded-sm flex items-center justify-center mx-auto shadow-brutal">
+                      <CheckCircle2 size={32} className="text-bg" />
+                    </div>
+                    <h3 className="font-heading font-bold text-xl text-text uppercase tracking-wider">Delivery Complete!</h3>
+                    <p className="text-muted font-body text-sm">You earned ₹{(MOCK_INCOMING_ORDER.totalAmount * 0.12).toFixed(0)} for this trip.</p>
+                    <button onClick={handleNewOrder} className="btn-primary px-8 py-3"
+                      style={{ backgroundColor: 'var(--accent)', boxShadow: '4px 4px 0px var(--accent)' }}>
+                      Accept New Orders
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+}
