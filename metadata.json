@@ -1,7 +1,7 @@
-
 {
-  "name": "FuelDelivery App DEMO",
-  "description": "A React application for customers to order fuel delivery quickly and conveniently.",
-  "requestFramePermissions": [],
-  "prompt": ""
+  "name": "FuelDrop",
+  "description": "A modern web application to order fuel directly to your doorstep.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

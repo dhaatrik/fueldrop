@@ -1,0 +1,64 @@
+export type FuelType = 'Petrol' | 'Diesel';
+export type VehicleType = 'Car' | 'Bike';
+
+export interface Vehicle {
+  id: string;
+  type: VehicleType;
+  make: string;
+  model: string;
+  fuelType: FuelType;
+  licensePlate: string;
+}
+
+export interface User {
+  id: string;
+  phone: string;
+  name: string;
+  email: string;
+}
+
+export type OrderStatus = 'Pending' | 'Accepted' | 'Out for Delivery' | 'Arriving' | 'Delivered' | 'Cancelled';
+
+export interface Location {
+  lat: number;
+  lng: number;
+  address: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  vehicleId: string;
+  fuelType: FuelType;
+  quantityLiters?: number;
+  amountRupees?: number;
+  location: Location;
+  status: OrderStatus;
+  date: string;
+  paymentMethod: string;
+  totalAmount: number;
+  rating?: number;
+  tip?: number;
+}
+
+export interface FavoriteOrder {
+  id: string;
+  name: string;
+  vehicleId: string;
+  fuelType: FuelType;
+  orderType: 'amount' | 'quantity';
+  value: number;
+  location: Location;
+}
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning';
+  timestamp: string;
+  read: boolean;
+}
+
+export type ViewState = 'login' | 'home' | 'profile' | 'garage' | 'order' | 'checkout' | 'tracking' | 'rating' | 'history' | 'favorites' | 'settings' | 'privacy' | 'terms' | 'about';
+
