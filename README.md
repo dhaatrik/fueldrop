@@ -1,5 +1,6 @@
-
 # FuelDrop
+
+[![CI](https://github.com/DhaatuTheGamer/fueldrop/actions/workflows/ci.yml/badge.svg)](https://github.com/DhaatuTheGamer/fueldrop/actions)
 
 A modern, React-based fuel delivery application that brings convenience and transparency to fuel ordering. Users can seamlessly order fuel by liters or rupees, track deliveries in real-time, and manage their vehicles—all from their mobile devices. Built with a focus on speed, simplicity, and trust, FuelDrop simulates a complete fuel delivery experience with features like OTP authentication, live tracking, and order history.
 
