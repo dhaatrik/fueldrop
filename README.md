@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/icon-192.png" width="128" alt="FuelDrop Logo" />
+</p>
+
 # FuelDrop
 
 [![CI](https://github.com/DhaatuTheGamer/fueldrop/actions/workflows/ci.yml/badge.svg)](https://github.com/DhaatuTheGamer/fueldrop/actions)
