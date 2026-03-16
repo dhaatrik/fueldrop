@@ -12,7 +12,7 @@ export default function Profile() {
   const [email, setEmail] = useState(user?.email || '');
 
   // Generate mock referral code
-  const referralCode = `FUEL${(user?.name || 'USER').slice(0, 4).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`;
+  const referralCode = `FUEL${(user?.name || 'USER').slice(0, 4).toUpperCase()}${window.crypto.getRandomValues(new Uint32Array(1))[0] % 9000 + 1000}`;
 
   const handleSave = () => {
     if (user) {
