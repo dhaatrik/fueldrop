@@ -35,6 +35,18 @@ export default function Profile() {
     });
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'FuelDrop',
+        text: 'Join me on FuelDrop and get fuel delivered anywhere!',
+        url: window.location.origin,
+      }).catch(() => {
+        // Ignore abort errors
+      });
+    }
+  };
+
   const handleShareWhatsApp = () => {
     const text = `Hey! Use my referral code ${referralCode} on FuelDrop and get ₹50 off your first fuel delivery! 🚗⛽`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -159,14 +171,23 @@ export default function Profile() {
               </button>
             </div>
 
-            {/* Share Button */}
-            <button
-              onClick={handleShareWhatsApp}
-              className="w-full py-3 bg-accent text-bg border-2 border-border rounded-sm font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all"
-              style={{ boxShadow: '4px 4px 0px var(--accent)' }}
-            >
-              <Share2 size={16} className="mr-2" /> Share via WhatsApp
-            </button>
+            {/* Share Buttons */}
+            <div className="flex space-x-2">
+              <button
+                onClick={handleShareWhatsApp}
+                className="flex-1 py-3 bg-[#25D366] text-white border-2 border-border rounded-sm font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all"
+                style={{ boxShadow: '4px 4px 0px #128C7E' }}
+              >
+                <Share2 size={16} className="mr-2" /> WhatsApp
+              </button>
+              <button
+                onClick={handleShare}
+                className="flex-1 py-3 bg-accent text-bg border-2 border-border rounded-sm font-heading font-bold text-sm uppercase tracking-wider flex items-center justify-center shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all"
+                style={{ boxShadow: '4px 4px 0px var(--accent)' }}
+              >
+                <Share2 size={16} className="mr-2" /> Share More
+              </button>
+            </div>
 
             {/* Mock Referral Stats */}
             <div className="flex items-center justify-between bg-bg border-2 border-border rounded-sm p-3">
