@@ -1,50 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Bell, Fuel, Car, Clock, ChevronRight, Settings, ArrowRight, AlertCircle, Droplets, Users } from 'lucide-react';
+import { MapPin, Bell, Car, Clock, Settings, ArrowRight, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import VehicleSelectModal from './VehicleSelectModal';
+import RefillReminders from './RefillReminders';
+import RecentOrders from './RecentOrders';
 
 export default function Home() {
-  const { user, orders, notifications, vehicles, setCurrentOrder, addNotification } = useAppContext();
+  const { user, notifications } = useAppContext();
   const navigate = useNavigate();
   const unreadCount = notifications.filter(n => !n.read).length;
-  const recentOrders = [...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 2);
-
-  const [showVehicleModal, setShowVehicleModal] = useState(false);
-  const [pendingReorder, setPendingReorder] = useState<typeof orders[0] | null>(null);
-
-  const handleReorder = (order: typeof orders[0]) => {
-    const vehicle = vehicles.find(v => v.id === order.vehicleId);
-    if (vehicle) {
-      setCurrentOrder({
-        vehicleId: order.vehicleId,
-        fuelType: order.fuelType,
-        amountRupees: order.amountRupees,
-        quantityLiters: order.quantityLiters,
-        location: order.location,
-      });
-      navigate('/checkout');
-    } else {
-      // Vehicle deleted — show vehicle select modal instead of blocking
-      setPendingReorder(order);
-      setShowVehicleModal(true);
-    }
-  };
-
-  const handleVehicleSelected = (vehicleId: string) => {
-    if (pendingReorder) {
-      const vehicle = vehicles.find(v => v.id === vehicleId);
-      setCurrentOrder({
-        vehicleId,
-        fuelType: vehicle?.fuelType || pendingReorder.fuelType,
-        amountRupees: pendingReorder.amountRupees,
-        quantityLiters: pendingReorder.quantityLiters,
-        location: pendingReorder.location,
-      });
-      navigate('/checkout');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
@@ -139,117 +104,10 @@ export default function Home() {
         </div>
 
         {/* Feature 6: Predictive Refill Reminders */}
-        {vehicles.filter(v => v.tankCapacity && v.avgDailyKm).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider mb-3 flex items-center">
-              <Droplets size={18} className="mr-2 text-primary" /> Refill Reminders
-            </h3>
-            <div className="space-y-3">
-              {vehicles.filter(v => v.tankCapacity && v.avgDailyKm).map(vehicle => {
-                const fuelEfficiency = vehicle.fuelType === 'Petrol' ? 15 : 20; // km/L estimate
-                const dailyFuelUsage = (vehicle.avgDailyKm || 1) / fuelEfficiency;
-                const daysUntilEmpty = Math.floor((vehicle.tankCapacity || 1) / dailyFuelUsage);
-                const isUrgent = daysUntilEmpty <= 3;
-                const isWarning = daysUntilEmpty <= 7;
+        <RefillReminders />
 
-                return (
-                  <div
-                    key={vehicle.id}
-                    className={`card-brutal p-4 transition-colors ${
-                      isUrgent ? 'border-red-500 bg-red-500/5' : isWarning ? 'border-primary bg-primary/5' : ''
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-sm border-2 border-border flex items-center justify-center shadow-brutal-sm ${
-                          isUrgent ? 'bg-red-500 text-white' : 'bg-surface text-primary'
-                        }`}>
-                          {isUrgent ? <AlertCircle size={20} /> : <Car size={20} />}
-                        </div>
-                        <div>
-                          <p className="font-heading font-bold text-text text-sm uppercase tracking-wider">
-                            {vehicle.make} {vehicle.model}
-                          </p>
-                          <p className={`text-xs font-heading font-bold ${
-                            isUrgent ? 'text-red-500' : isWarning ? 'text-primary' : 'text-accent'
-                          }`}>
-                            {isUrgent ? `⚠ Refill in ~${daysUntilEmpty} days!` : `~${daysUntilEmpty} days until refill`}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => navigate('/order')}
-                        className="text-xs font-heading font-bold bg-primary text-bg px-3 py-1.5 rounded-sm border-2 border-border shadow-brutal-sm hover:translate-y-px hover:shadow-none transition-all"
-                      >
-                        REFILL
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider">Recent Orders</h3>
-            <button onClick={() => navigate('/history')} className="text-sm text-primary font-heading font-bold uppercase tracking-wider hover:underline">See All</button>
-          </div>
-          
-          <div className="space-y-3">
-            {recentOrders.length === 0 ? (
-              <div className="card-brutal p-6 text-center transition-colors">
-                <p className="text-muted font-body text-sm">No recent orders.</p>
-              </div>
-            ) : (
-              recentOrders.map((order) => (
-                <div key={order.id} className="card-brutal p-4 flex items-center justify-between transition-colors hover:border-primary">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-bg border-2 border-border rounded-sm flex items-center justify-center mr-3 transition-colors">
-                      <Fuel size={20} className="text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-bold text-text text-sm uppercase">{order.fuelType} • {order.quantityLiters}L</p>
-                      <p className="text-xs text-muted font-body mt-0.5">{new Date(order.date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  <div className="text-right flex flex-col items-end">
-                    <p className="font-heading font-bold text-text text-sm">₹{order.totalAmount}</p>
-                    <p className={`text-xs font-heading font-bold uppercase tracking-wider mt-0.5 mb-2 ${
-                      order.status === 'Delivered' ? 'text-accent' : 'text-primary'
-                    }`}>{order.status}</p>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReorder(order);
-                      }}
-                      className="text-xs font-heading font-bold bg-surface border-2 border-border px-2 py-1 rounded-sm hover:bg-primary hover:text-bg transition-colors"
-                    >
-                      REORDER
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </motion.div>
+        <RecentOrders />
       </main>
-
-      <VehicleSelectModal
-        isOpen={showVehicleModal}
-        onClose={() => setShowVehicleModal(false)}
-        onSelect={handleVehicleSelected}
-        title="Vehicle Deleted"
-      />
     </div>
   );
 }
