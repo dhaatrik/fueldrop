@@ -46,6 +46,8 @@ export default function Home() {
     }
   };
 
+  const vehiclesWithRefillData = vehicles.filter(v => v.tankCapacity && v.avgDailyKm);
+
   return (
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
       <header className="bg-surface border-b-2 border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors">
@@ -139,7 +141,7 @@ export default function Home() {
         </div>
 
         {/* Feature 6: Predictive Refill Reminders */}
-        {vehicles.filter(v => v.tankCapacity && v.avgDailyKm).length > 0 && (
+        {vehiclesWithRefillData.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -149,7 +151,7 @@ export default function Home() {
               <Droplets size={18} className="mr-2 text-primary" /> Refill Reminders
             </h3>
             <div className="space-y-3">
-              {vehicles.filter(v => v.tankCapacity && v.avgDailyKm).map(vehicle => {
+              {vehiclesWithRefillData.map(vehicle => {
                 const fuelEfficiency = vehicle.fuelType === 'Petrol' ? 15 : 20; // km/L estimate
                 const dailyFuelUsage = (vehicle.avgDailyKm || 1) / fuelEfficiency;
                 const daysUntilEmpty = Math.floor((vehicle.tankCapacity || 1) / dailyFuelUsage);
