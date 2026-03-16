@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { Location } from '../types';
-import { MapPin, Navigation, Loader2, Bookmark, Plus, X, Home, Briefcase, Dumbbell, Coffee } from 'lucide-react';
+import { MapPin, Navigation, Loader2, Bookmark, X, Home, Briefcase, Dumbbell, Coffee } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAppContext } from '../context/AppContext';
 
