@@ -40,26 +40,19 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phone, otp }),
-      });
+      // Simulate network delay for realistic feel
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Invalid OTP');
+      // Test OTP: accept "1234" for development/testing
+      if (otp !== '1234') {
+        throw new Error('Invalid OTP. Please enter 1234 for testing.');
       }
 
-      const data = await response.json();
-
       setUser({
-        id: data.user?.id || 'user-1',
+        id: 'user-1',
         phone,
-        name: data.user?.name || 'Guest User',
-        email: data.user?.email || '',
+        name: 'Guest User',
+        email: '',
       });
 
       // Route new users to onboarding, returning users to home

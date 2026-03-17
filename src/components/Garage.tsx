@@ -11,6 +11,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+// Zod schema for optional number fields — the register's setValueAs handles empty→undefined coercion
+const optionalNumber = (min: number, max: number, maxLabel: string) =>
+  z.number().min(min, `Must be at least ${min}`).max(max, maxLabel).optional();
+
 // Zod schema for vehicle form (Feature 9)
 const vehicleSchema = z.object({
   type: z.enum(['Car', 'Bike']),
@@ -18,8 +22,8 @@ const vehicleSchema = z.object({
   make: z.string().min(1, 'Make is required').max(30, 'Too long'),
   model: z.string().min(1, 'Model is required').max(30, 'Too long'),
   licensePlate: z.string().min(9, 'Enter a complete license plate (e.g., KA 01 AB 1234)'),
-  tankCapacity: z.number().min(1).max(200).optional(),
-  avgDailyKm: z.number().min(1).max(500).optional(),
+  tankCapacity: optionalNumber(1, 200, 'Max 200L'),
+  avgDailyKm: optionalNumber(1, 500, 'Max 500 km'),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -207,7 +211,7 @@ export default function Garage() {
                     <label className="label-small">Tank Capacity (L) <span className="text-muted font-normal">(optional)</span></label>
                     <input
                       type="number"
-                      {...register('tankCapacity', { valueAsNumber: true })}
+                      {...register('tankCapacity', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })}
                       className={`input-brutal ${errors.tankCapacity ? 'border-red-500' : ''}`}
                       placeholder="e.g., 45"
                     />
@@ -219,7 +223,7 @@ export default function Garage() {
                     <label className="label-small">Avg Daily Km <span className="text-muted font-normal">(optional)</span></label>
                     <input
                       type="number"
-                      {...register('avgDailyKm', { valueAsNumber: true })}
+                      {...register('avgDailyKm', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })}
                       className={`input-brutal ${errors.avgDailyKm ? 'border-red-500' : ''}`}
                       placeholder="e.g., 30"
                     />
