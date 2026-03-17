@@ -24,7 +24,7 @@ export default function Onboarding() {
         ...vehicles,
         {
           ...newVehicle,
-          id: `veh-${Date.now()}`,
+          id: `veh-${crypto.randomUUID()}`,
         } as Vehicle,
       ]);
       addNotification('Vehicle Added', 'Your first vehicle has been added!', 'success');

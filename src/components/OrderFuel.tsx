@@ -102,7 +102,7 @@ export default function OrderFuel() {
     const amountRupees = orderType === 'amount' ? numValue : numValue * FUEL_PRICE[fuelType];
 
     setCart(prev => [...prev, {
-      id: `cart-${Date.now()}`,
+      id: `cart-${crypto.randomUUID()}`,
       vehicleId: selectedVehicle,
       fuelType,
       orderType,

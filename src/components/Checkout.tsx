@@ -75,7 +75,7 @@ export default function Checkout() {
     
     const newOrder: Order = {
       ...currentOrder,
-      id: `ord-${Date.now()}`,
+      id: `ord-${crypto.randomUUID()}`,
       userId: 'user-1',
       status: 'Pending',
       date: new Date().toISOString(),
@@ -94,7 +94,7 @@ export default function Checkout() {
       setFavoriteOrders([
         ...favoriteOrders,
         {
-          id: `fav-${Date.now()}`,
+          id: `fav-${crypto.randomUUID()}`,
           name: favoriteName,
           vehicleId: currentOrder.vehicleId!,
           fuelType: currentOrder.fuelType!,
