@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Bell, Fuel, Car, Clock, ChevronRight, Settings, ArrowRight, AlertCircle, Droplets, Users } from 'lucide-react';
+import { MapPin, Bell, Fuel, Car, Clock, Settings, ArrowRight, AlertCircle, Droplets, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import VehicleSelectModal from './VehicleSelectModal';
@@ -46,6 +46,8 @@ export default function Home() {
       navigate('/checkout');
     }
   };
+
+  const vehiclesWithRefillData = vehicles.filter(v => v.tankCapacity && v.avgDailyKm);
 
   return (
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
