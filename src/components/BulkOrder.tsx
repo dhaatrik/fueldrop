@@ -35,7 +35,7 @@ export default function BulkOrder() {
       return;
     }
     setItems(prev => [...prev, {
-      id: `bulk-${Date.now()}`,
+      id: `bulk-${crypto.randomUUID()}`,
       vehicleId: vehicles[0].id,
       fuelType: vehicles[0].fuelType,
       quantityLiters: 10,

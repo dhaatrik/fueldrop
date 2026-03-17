@@ -27,7 +27,7 @@ export default function SaveAddressDialog({ isOpen, onClose, location }: SaveAdd
     setSavedAddresses([
       ...savedAddresses,
       {
-        id: `addr-${Date.now()}`,
+        id: `addr-${crypto.randomUUID()}`,
         label: saveLabel.trim(),
         emoji: saveEmoji,
         location,

@@ -68,7 +68,7 @@ export default function Garage() {
     } else {
       setVehicles([
         ...vehicles,
-        { ...data, id: `veh-${Date.now()}` } as Vehicle,
+        { ...data, id: `veh-${crypto.randomUUID()}` } as Vehicle,
       ]);
       addNotification('Vehicle Added', 'New vehicle added to your garage.', 'success');
     }

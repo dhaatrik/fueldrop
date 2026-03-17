@@ -60,7 +60,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const addNotification = useCallback((title: string, message: string, type: 'info' | 'success' | 'warning' = 'info') => {
-    const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+    const id = crypto.randomUUID();
 
     // Set auto-dismiss timer for this specific notification
     setTimeout(() => {
