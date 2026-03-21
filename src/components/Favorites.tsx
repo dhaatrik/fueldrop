@@ -65,7 +65,7 @@ export default function Favorites() {
   return (
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
       <header className="bg-surface border-b-2 border-border px-6 py-4 flex items-center sticky top-0 z-10 transition-colors">
-        <button onClick={() => navigate('/profile')} className="mr-4 text-text hover:text-primary transition-colors">
+        <button aria-label="Go back" onClick={() => navigate('/profile')} className="mr-4 text-text hover:text-primary transition-colors">
           <ArrowLeft size={24} />
         </button>
         <h1 className="font-heading font-bold text-xl text-text uppercase tracking-wider">Favorites</h1>
@@ -111,10 +111,10 @@ export default function Favorites() {
                       )}
                     </div>
                     <div className="flex space-x-1 shrink-0 ml-3">
-                      <button onClick={() => { setEditingId(fav.id); setEditName(fav.name); }} className="p-1.5 text-muted hover:text-primary transition-colors">
+                      <button aria-label="Edit favorite" onClick={() => { setEditingId(fav.id); setEditName(fav.name); }} className="p-1.5 text-muted hover:text-primary transition-colors">
                         <Edit2 size={16} />
                       </button>
-                      <button onClick={() => setDeleteId(fav.id)} className="p-1.5 text-muted hover:text-red-500 transition-colors">
+                      <button aria-label="Delete favorite" onClick={() => setDeleteId(fav.id)} className="p-1.5 text-muted hover:text-red-500 transition-colors">
                         <Trash2 size={16} />
                       </button>
                     </div>
