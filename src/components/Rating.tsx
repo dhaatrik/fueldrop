@@ -101,10 +101,11 @@ export default function Rating() {
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
+                aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                 onMouseEnter={() => setHoveredRating(star)}
                 onMouseLeave={() => setHoveredRating(0)}
                 onClick={() => setRating(star)}
-                className="p-1 focus:outline-none transition-transform hover:scale-110"
+                className="p-1 focus:outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
               >
                 <Star
                   size={40}

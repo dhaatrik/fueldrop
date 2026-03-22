@@ -5,3 +5,7 @@
 ## 2024-03-20 - Dynamic ARIA labels on Toggle Buttons
 **Learning:** Found toggle buttons (like the dark mode toggle) that lacked ARIA labels. When components have internal state representing visual changes, providing static `aria-label` attributes isn't enough; the label must be dynamic to describe the *next* state or current state clearly to screen reader users.
 **Action:** When implementing toggles or switches, ensure `aria-label` utilizes the component's state to provide context-sensitive reading (e.g., `aria-label={isActive ? 'Deactivate' : 'Activate'}`).
+
+## 2024-05-15 - ARIA Labels on Interactive Rating Widgets
+**Learning:** Found that custom interactive widgets (like a star rating component built with icon buttons) lacked both proper descriptive `aria-label` attributes and keyboard focus styling (`focus-visible`). This makes it difficult for screen reader users to understand what the button represents and hard for keyboard users to see which star is currently focused.
+**Action:** Always provide descriptive `aria-label`s (e.g., `aria-label={\`Rate \${star} star\${star > 1 ? 's' : ''}\`}`) and `focus-visible` styles on custom interactive input elements.
