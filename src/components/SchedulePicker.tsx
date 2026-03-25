@@ -50,6 +50,7 @@ export default function SchedulePicker({ isScheduled, scheduledDate, onScheduleC
 
       <div className="flex p-1 bg-bg border-2 border-border rounded-sm mb-4 transition-colors">
         <button
+          aria-label="Order for now"
           onClick={() => {
             onScheduleChange(false, '');
             setSelectedSlot('');
@@ -61,6 +62,7 @@ export default function SchedulePicker({ isScheduled, scheduledDate, onScheduleC
           <Zap size={14} className="mr-1.5" /> Now
         </button>
         <button
+          aria-label="Schedule order for later"
           onClick={() => onScheduleChange(true, scheduledDate)}
           className={`flex-1 py-2.5 text-sm font-heading font-bold uppercase tracking-wider rounded-sm transition-all flex items-center justify-center ${
             isScheduled ? 'bg-primary text-bg border-2 border-border shadow-brutal-sm' : 'text-muted hover:text-text'
@@ -83,6 +85,7 @@ export default function SchedulePicker({ isScheduled, scheduledDate, onScheduleC
             <div className="grid grid-cols-4 gap-2">
               {days.map((day) => (
                 <button
+                  aria-label={`Select day ${day.label}`}
                   key={day.index}
                   onClick={() => {
                     setSelectedDay(day.index);
@@ -106,6 +109,7 @@ export default function SchedulePicker({ isScheduled, scheduledDate, onScheduleC
             <div className="grid grid-cols-2 gap-2">
               {timeSlots.length > 0 ? timeSlots.map((slot) => (
                 <button
+                  aria-label={`Select time slot ${slot.label}`}
                   key={slot.value}
                   onClick={() => handleSlotSelect(slot.value)}
                   className={`py-2.5 px-3 text-sm font-heading font-bold rounded-sm border-2 transition-all flex items-center justify-center ${
