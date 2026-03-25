@@ -294,12 +294,14 @@ export default function Garage() {
                     </div>
                     <div className="flex space-x-2">
                       <button
+                        aria-label={`Edit ${vehicle.make} ${vehicle.model}`}
                         onClick={() => startEdit(vehicle)}
                         className="p-2 text-muted hover:text-primary transition-colors border-2 border-transparent hover:border-primary rounded-sm hover:bg-surface"
                       >
                         <Edit2 size={20} />
                       </button>
                       <button
+                        aria-label={`Delete ${vehicle.make} ${vehicle.model}`}
                         onClick={() => setVehicleToDelete(vehicle.id)}
                         className="p-2 text-muted hover:text-red-500 transition-colors border-2 border-transparent hover:border-red-500 rounded-sm hover:bg-surface"
                       >

@@ -33,6 +33,7 @@ export default function NotificationToast() {
               <p className="text-sm text-muted font-body mt-0.5 leading-tight">{notification.message}</p>
             </div>
             <button 
+              aria-label="Close notification"
               onClick={() => markNotificationRead(notification.id)}
               className="ml-3 shrink-0 text-muted hover:text-primary transition-colors"
             >
