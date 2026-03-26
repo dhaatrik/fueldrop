@@ -66,13 +66,13 @@ export default function Home() {
           <button 
             onClick={() => navigate('/settings')}
             aria-label="Settings"
-            className="p-2 text-text border-2 border-border rounded-sm hover:border-primary hover:text-primary transition-colors bg-bg"
+            className="p-2 text-text border-2 border-border rounded-sm hover:border-primary hover:text-primary transition-colors bg-bg focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <Settings size={20} />
           </button>
           <button
             aria-label="Notifications"
-            className="p-2 text-text border-2 border-border rounded-sm hover:border-primary hover:text-primary transition-colors bg-bg relative"
+            className="p-2 text-text border-2 border-border rounded-sm hover:border-primary hover:text-primary transition-colors bg-bg relative focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <Bell size={20} />
             {unreadCount > 0 && (
@@ -95,7 +95,7 @@ export default function Home() {
             <h2 className="text-xl font-heading font-bold mb-4 line-clamp-1">Koramangala, Bangalore</h2>
             <button 
               onClick={() => navigate('/order')}
-              className="bg-bg text-text border-2 border-border px-6 py-3 rounded-sm font-heading font-bold text-sm uppercase tracking-wider shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all inline-flex items-center"
+              className="bg-bg text-text border-2 border-border px-6 py-3 rounded-sm font-heading font-bold text-sm uppercase tracking-wider shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutal-sm transition-all inline-flex items-center focus-visible:ring-2 focus-visible:ring-text focus-visible:outline-none"
             >
               Order Fuel Now <ArrowRight size={16} className="ml-2" />
             </button>
@@ -108,7 +108,7 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
             onClick={() => navigate('/garage')}
-            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group"
+            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <div className="w-12 h-12 bg-bg border-2 border-border rounded-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-brutal-sm">
               <Car size={24} className="text-primary" />
@@ -122,7 +122,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
             onClick={() => navigate('/fleet')}
-            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group"
+            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <div className="w-12 h-12 bg-bg border-2 border-border rounded-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-brutal-sm">
               <Users size={24} className="text-primary" />
@@ -136,7 +136,7 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
             onClick={() => navigate('/history')}
-            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group"
+            className="card-brutal p-5 flex flex-col items-center justify-center text-center hover:border-primary transition-colors group focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <div className="w-12 h-12 bg-bg border-2 border-border rounded-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-brutal-sm">
               <Clock size={24} className="text-primary" />
@@ -191,7 +191,7 @@ export default function Home() {
                       </div>
                       <button
                         onClick={() => navigate('/order')}
-                        className="text-xs font-heading font-bold bg-primary text-bg px-3 py-1.5 rounded-sm border-2 border-border shadow-brutal-sm hover:translate-y-px hover:shadow-none transition-all"
+                        className="text-xs font-heading font-bold bg-primary text-bg px-3 py-1.5 rounded-sm border-2 border-border shadow-brutal-sm hover:translate-y-px hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-offset-2"
                       >
                         REFILL
                       </button>
@@ -210,7 +210,7 @@ export default function Home() {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading font-bold text-lg text-text uppercase tracking-wider">Recent Orders</h3>
-            <button onClick={() => navigate('/history')} className="text-sm text-primary font-heading font-bold uppercase tracking-wider hover:underline">See All</button>
+            <button onClick={() => navigate('/history')} className="text-sm text-primary font-heading font-bold uppercase tracking-wider hover:underline focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">See All</button>
           </div>
           
           <div className="space-y-3">
@@ -240,7 +240,7 @@ export default function Home() {
                         e.stopPropagation();
                         handleReorder(order);
                       }}
-                      className="text-xs font-heading font-bold bg-surface border-2 border-border px-2 py-1 rounded-sm hover:bg-primary hover:text-bg transition-colors"
+                      className="text-xs font-heading font-bold bg-surface border-2 border-border px-2 py-1 rounded-sm hover:bg-primary hover:text-bg transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     >
                       REORDER
                     </button>
