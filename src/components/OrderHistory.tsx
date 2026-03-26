@@ -62,7 +62,7 @@ export default function OrderHistory() {
     <div className="min-h-screen bg-bg flex flex-col transition-colors">
       <header className="bg-surface border-b-2 border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10 transition-colors">
         <div className="flex items-center">
-          <button aria-label="Go back" onClick={() => navigate('/')} className="mr-4 text-text hover:text-primary transition-colors">
+          <button aria-label="Go back" onClick={() => navigate('/')} className="mr-4 text-text hover:text-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none rounded-sm">
             <ArrowLeft size={24} />
           </button>
           <h1 className="font-heading font-bold text-xl text-text uppercase tracking-wider">Order History</h1>
@@ -70,7 +70,7 @@ export default function OrderHistory() {
         <button
           aria-label={showFilters ? 'Hide filters' : 'Show filters'}
           onClick={() => setShowFilters(!showFilters)}
-          className={`p-2 border-2 rounded-sm transition-colors ${showFilters ? 'bg-primary text-bg border-border' : 'bg-bg text-text border-border hover:border-primary'}`}
+          className={`p-2 border-2 rounded-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${showFilters ? 'bg-primary text-bg border-border' : 'bg-bg text-text border-border hover:border-primary'}`}
         >
           <Filter size={20} />
         </button>
@@ -106,7 +106,7 @@ export default function OrderHistory() {
                       <button
                         key={status}
                         onClick={() => setSelectedStatus(status)}
-                        className={`px-3 py-1.5 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+                        className={`px-3 py-1.5 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
                           selectedStatus === status
                             ? 'bg-primary text-bg border-border shadow-brutal-sm'
                             : 'bg-bg border-border text-muted hover:border-muted'
@@ -122,7 +122,7 @@ export default function OrderHistory() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setSortOrder('newest')}
-                      className={`flex-1 py-2 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+                      className={`flex-1 py-2 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
                         sortOrder === 'newest' ? 'bg-primary text-bg border-border shadow-brutal-sm' : 'bg-bg border-border text-muted'
                       }`}
                     >
@@ -130,7 +130,7 @@ export default function OrderHistory() {
                     </button>
                     <button
                       onClick={() => setSortOrder('oldest')}
-                      className={`flex-1 py-2 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all ${
+                      className={`flex-1 py-2 border-2 rounded-sm text-xs font-heading font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${
                         sortOrder === 'oldest' ? 'bg-primary text-bg border-border shadow-brutal-sm' : 'bg-bg border-border text-muted'
                       }`}
                     >
@@ -151,7 +151,7 @@ export default function OrderHistory() {
             </div>
             <h3 className="text-lg font-heading font-bold text-text mb-2 uppercase tracking-wider">No orders found</h3>
             <p className="text-muted font-body mb-4">{search ? 'Try a different search term' : 'Place your first order to see it here'}</p>
-            <button onClick={() => navigate('/order')} className="btn-primary px-6 py-3">
+            <button onClick={() => navigate('/order')} className="btn-primary px-6 py-3 focus-visible:ring-2 focus-visible:ring-text focus-visible:outline-none focus-visible:ring-offset-2">
               Order Fuel
             </button>
           </div>
