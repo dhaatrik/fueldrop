@@ -215,7 +215,7 @@ export default function OrderFuel() {
               <button
                 key={quickValue}
                 onClick={() => setValue(quickValue.toString())}
-                className="flex-1 py-2 bg-surface border-2 border-border rounded-sm font-heading font-bold text-sm hover:bg-bg hover:border-primary transition-colors"
+                className="flex-1 py-2 bg-surface border-2 border-border rounded-sm font-heading font-bold text-sm hover:bg-bg hover:border-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               >
             {orderType === 'amount' ? `₹${quickValue}` : `${quickValue}L`}
               </button>
@@ -300,14 +300,14 @@ export default function OrderFuel() {
           {vehicles.length > 1 && (
             <button
               onClick={handleAddToCart}
-              className="btn-secondary w-full py-4 text-base flex items-center justify-center"
+              className="btn-secondary w-full py-4 text-base flex items-center justify-center focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-offset-2"
             >
               <Plus size={18} className="mr-2" /> Add to Cart & Select Another Vehicle
             </button>
           )}
           <button
             onClick={handleContinue}
-            className="btn-primary w-full py-4 text-lg flex items-center justify-center"
+            className="btn-primary w-full py-4 text-lg flex items-center justify-center focus-visible:ring-2 focus-visible:ring-text focus-visible:outline-none focus-visible:ring-offset-2"
           >
             Continue to Checkout <ArrowRight size={20} className="ml-2" />
           </button>

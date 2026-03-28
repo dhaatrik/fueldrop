@@ -12,3 +12,7 @@
 ## 2026-03-25 - Adding ARIA labels to icon buttons
 **Learning:** Found several icon-only buttons in the application lacking ARIA labels, creating accessibility issues for screen reader users. Added ARIA labels for buttons in FuelCart and MapPicker.
 **Action:** When creating new components with icon-only buttons, ensure an `aria-label` attribute is always included to provide context to assistive technologies.
+
+## 2026-03-28 - Focus Visible Styles for Quick Actions and Primary CTAs
+**Learning:** Found that secondary quick-action buttons (like the quick amount/quantity selectors in the OrderFuel component) and primary calls to actions (like 'Continue to Checkout' or 'Add to Cart') lacked explicit keyboard focus styling. Because they use a brutalist design system with complex borders and shadow changes on hover, the default browser focus ring is often insufficient or entirely overwritten, making keyboard navigation confusing.
+**Action:** Always provide explicit `focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none` (and `focus-visible:ring-offset-2` when appropriate to separate the ring from the border) on all interactive buttons, especially those that act as primary user flows or quick selection helpers, to ensure they remain accessible to keyboard users.
