@@ -43,9 +43,21 @@ export default function Login() {
       // Simulate network delay for realistic feel
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // Test OTP: accept "1234" for development/testing
-      if (otp !== '1234') {
-        throw new Error('Invalid OTP. Please enter 1234 for testing.');
+      // Security Fix: Remove hardcoded OTP and use simulated API call
+      // Only allow "1234" bypass in development mode
+      const isTestOtp = import.meta.env.DEV && otp === '1234';
+
+      if (!isTestOtp) {
+        const response = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, otp }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || 'Invalid OTP. Please try again.');
+        }
       }
 
       setUser({
@@ -138,7 +150,7 @@ export default function Login() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 className="input-brutal text-center tracking-widest text-2xl font-heading"
-                placeholder="1234"
+                placeholder={import.meta.env.DEV ? '1234' : '••••'}
                 required
               />
             </div>

@@ -7,3 +7,8 @@
 **Vulnerability:** Found `window.open(..., '_blank')` used without the `noopener,noreferrer` flags in UI action handlers like WhatsApp sharing and Google Maps navigation.
 **Learning:** Opening new tabs or windows using `_blank` without these security flags leaves the new window with a reference to the original `window.opener` object, which malicious destinations could exploit to change the original page's location (tabnabbing) or execute limited cross-site scripts.
 **Prevention:** Always append `'noopener,noreferrer'` as the third argument to `window.open` when navigating to external origins or use `rel="noopener noreferrer"` on `target="_blank"` anchor tags.
+
+## 2026-03-30 - [Hardcoded Authentication Bypass Vulnerability]
+**Vulnerability:** Found a hardcoded OTP ('1234') in the Login component that allowed anyone to bypass authentication by entering a specific test value.
+**Learning:** Hardcoding test credentials directly in the codebase is a common but severe security risk, as they are often accidentally leaked into production environments, providing a backdoor for unauthorized access.
+**Prevention:** Use environment variables (like `import.meta.env.DEV`) to gate development-only features and ensure that authentication logic always defaults to secure, server-side validation in production.
